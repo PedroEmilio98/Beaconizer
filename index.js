@@ -1,18 +1,22 @@
-//importa as dependencias
+/////////////////importa as dependencias///////////////////////////////////
+//frameworks
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
-const User = require('./models/User');
-const beaconRouter = require('./routes/BeaconRouter');
-const restrictedRouter = require('./routes/RestrictedRouter');
 const session = require('express-session');
 const bodyParser = require('body-parser');
+//models
+const User = require('./models/User');
+//roteadores
+const beaconRouter = require('./routes/BeaconRouter');
+const restrictedRouter = require('./routes/RestrictedRouter');
+const authRouter = require('./routes/AuthRouter');
+const pagesRouter = require('./routes/PagesRouter');
+/////////////////////////////////////////////////////////////////////////////
 
 //define as constantes para variaveis de ambiente
 const PORT = process.env.PORT || 3000
 const mongo = process.env.MONGO || 'mongodb://localhost/mongoNoticias'
-
-
 
 //instancia o express
 const app = express();
@@ -27,41 +31,21 @@ app.set('view engine', 'ejs');
 //configura o middleware
 app.use(session({ secret: 'teste' }));
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use((req, res, next) => {
+    if ('user' in req.session) {
+        res.locals.user = req.session.user
+    }
+    next()
+});
 
 //define as rotas. O primeiro arg define a rota na URL e o segundo o roteador que sera chamado
-app.use('/avisos', beaconRouter);
-
-app.use('/restrito', (req, res, next) => {
-    if ("user" in session) {
-        return next()
-    } else {
-        res.redirect('/login')
-    }
-});
-
+app.use('/', authRouter);
 app.use('/restrito', restrictedRouter);
-
-//login provisorio
-app.get('/login', (req, res) => {
-    res.render('login')
-});
-app.post('/login', async (req, res) => {
-    const user = await User.findOne({ userName: req.body.userName })
-    const isValid = await user.checkPassword(req.body.password)
-    if (isValid) {
-        req.session.user = user;
-        res.redirect('/restrito')
-    } else {
-        res.redirect('/')
-    }
-})
-
-
+app.use('/avisos', beaconRouter);
+app.use('/', pagesRouter);
 
 //define a pasta public como a pasta de arquivos estaticos
 app.use(express.static('public'))
-
 
 //cria o usuario Admin caso nao exista nenhum usuario
 const createAdmin = async () => {
@@ -76,7 +60,6 @@ const createAdmin = async () => {
         console.log('Já existe um usuario')
     }
 }
-
 
 //conecta no banco de dados e inicia o servidor
 mongoose.connect(mongo, { useNewUrlParser: true, useUnifiedTopology: true })

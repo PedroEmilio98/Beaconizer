@@ -1,5 +1,5 @@
 /**
- * Roteador para as areas restritas
+ * Roteador para as areas restritas. Todos partem da URL '/restrito'
  */
 
 const express = require('express');
