@@ -32,23 +32,17 @@ app.set('view engine', 'ejs');
 //configura o middleware
 app.use(session({ secret: 'teste' }));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-    if ('user' in req.session) {
-        res.locals.user = req.session.user
-    }
-    next()
-});
 
 //define as rotas. O primeiro arg define a rota na URL e o segundo o roteador que sera chamado
 app.use('/', authRouter);
+app.use('/', pagesRouter);
 app.use('/restrito', restrictedRouter);
 app.use('/avisos', beaconRouter);
-app.use('/', pagesRouter);
 
 //define a pasta public como a pasta de arquivos estaticos
 app.use(express.static('public'))
 
-//cria o usuario Admin caso nao exista nenhum usuario
+//cria o usuario Admin e os de teste caso nao exista nenhum usuario
 const createAdmin = async () => {
     const numUsers = await User.count();
     if (numUsers === 0) {
