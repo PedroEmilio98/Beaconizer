@@ -7,6 +7,7 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 //models
 const User = require('./models/User');
+const Beacon = require('./models/Beacon');
 //roteadores
 const beaconRouter = require('./routes/BeaconRouter');
 const restrictedRouter = require('./routes/RestrictedRouter');
@@ -51,13 +52,44 @@ app.use(express.static('public'))
 const createAdmin = async () => {
     const numUsers = await User.count();
     if (numUsers === 0) {
-        const user = new User({
+        const userAdmin = new User({
             userName: 'ADMIN',
-            password: 'admin123'
+            password: 'admin123',
+            category: 'all',
+            roles: 'all'
         });
-        await user.save(() => console.log('ADMIN criado'));
+        await userAdmin.save(() => console.log('ADMIN criado'));
+        const userManager = new User({
+            userName: 'Gerente',
+            password: 'gerente123',
+            category: 'vendas',
+            roles: 'gerente'
+        });
+        await userManager.save(() => console.log('Gerente criado'));
+        const userSaler = new User({
+            userName: 'Vendedor',
+            password: 'vendedor123',
+            category: 'vendas',
+            roles: 'operacional'
+        });
+        await userSaler.save(() => console.log('Vendedor criado'));
     } else {
         console.log('Já existe um usuario')
+    }
+    const isBeacon = await Beacon.find({});
+    if (!isBeacon) {
+        const beaconPublic = new Beacon({
+            title: 'Recesso de natal',
+            content: 'Todos terao recesso entre o natal e o ano novo',
+            category: 'public'
+        });
+        await beaconPublic.save();
+        const beaconSales = new Beacon({
+            title: 'Recesso de natal vendedores',
+            content: 'Os vendedores devem estar atentos ao telefone durante o recesso',
+            category: 'vendas'
+        });
+        await beaconSales.save();
     }
 }
 

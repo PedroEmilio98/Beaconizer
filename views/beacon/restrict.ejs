@@ -1,0 +1,16 @@
+<%- include('../partials/header') %>
+
+    <div class="starter-template">
+        <h1>Avisos por departamento</h1>
+        <table>
+            <% beacon.forEach(beacon=>{ %>
+                <tr>
+                    <td>
+                        <%= beacon.title %>
+                    </td>
+                </tr>
+                <% }) %>
+        </table>
+    </div>
+
+    <%- include('../partials/footer') %>
