@@ -6,42 +6,66 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
-router.use((req, res, next) => {
-    if ('user' in req.session) {
-        res.locals.user = req.session.user
-    }
-    next()
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy
+
+router.use(passport.initialize());
+router.use(passport.session());
+
+passport.serializeUser((user, done) => {
+    done(null, user)
 });
 
-router.use('/restrito', (req, res, next) => {
-    if ("user" in req.session) {
-        return next()
+passport.deserializeUser((user, done) => {
+    done(null, user)
+})
+
+passport.use(new LocalStrategy({ usernameField: 'userName' }, async (userName, password, done) => {
+    const user = await User.findOne({ userName })
+    if (user) {
+        const isValid = await user.checkPassword(password)
+        if (isValid) {
+            return done(null, user)
+        } else {
+            return done(null, user)
+        }
     } else {
-        res.redirect('/login')
+        return done(null, false)
     }
+}
+))
+
+router.use((req, res, next) => {
+    if (req.isAuthenticated()) {
+        res.locals.user = req.user
+    }
+    next()
 });
 
 router.get('/login', (req, res) => {
     res.render('login')
 });
 
-router.post('/login', async (req, res) => {
-    const user = await User.findOne({ userName: req.body.userName })
-    const isValid = await user.checkPassword(req.body.password)
-    if (isValid) {
-        req.session.user = user;
-        res.redirect('/')
-    } else {
-        res.redirect('/login')
-    }
-});
+router.post('/login',
+    passport.authenticate('local', {
+        successRedirect: '/',
+        failureRedirect: '/login'
+    })
+);
 
 router.get('/logout', (req, res) => {
     req.session.destroy(() => {
         res.redirect('/')
     });
-
 })
+
+router.use('/restrito', (req, res, next) => {
+    if (req.isAuthenticated()) {
+        return next()
+    } else {
+        res.redirect('/login')
+    }
+});
 
 module.exports = router;
 

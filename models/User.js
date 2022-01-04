@@ -1,6 +1,6 @@
 /**
  * Model para Users. Cria o modelo dos usuarios e a criptografia da senha usando bcrypt para
- * gerar o Hash
+ * gerar o Hash. Category eh o setor do funcionario, role eh o cargo
  */
 
 const mongoose = require('mongoose');

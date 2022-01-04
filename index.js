@@ -1,3 +1,10 @@
+/**
+ * A aplicacao inicia aqui. Quando o servidor eh iniciado, conecta no banco de dados e verifica
+ * se ADMIN existe. Caso nao exista, cria o ADMIN, o Vendedor e o gerente para testes. 
+ * Alem disso cria as noticias publica e do departamento de vendas, no caso de nao existir
+ * nenhuma noticia no banco de dados.
+ */
+
 /////////////////importa as dependencias///////////////////////////////////
 //frameworks
 const express = require('express');
@@ -32,6 +39,19 @@ app.set('view engine', 'ejs');
 //configura o middleware
 app.use(session({ secret: 'teste' }));
 app.use(bodyParser.urlencoded({ extended: true }));
+
+
+/*
+//configura o CORS
+app.use((req, res, next) => {
+    //Qual site tem permissão de realizar a conexão, no exemplo abaixo está o "*" indicando que qualquer site pode fazer a conexão
+    res.header("Access-Control-Allow-Origin", "*");
+    //Quais são os métodos que a conexão pode realizar na API
+    res.header("Access-Control-Allow-Methods", 'GET,PUT,POST,DELETE');
+    app.use(cors());
+    next();
+});
+*/
 
 //define as rotas. O primeiro arg define a rota na URL e o segundo o roteador que sera chamado
 app.use('/', authRouter);
