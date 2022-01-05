@@ -10,12 +10,12 @@ const bcrypt = require('bcrypt');
 const UserSchema = new mongoose.Schema({
     userName: {
         type: String,
-        required: true,
     },
     password: {
         type: String,
-        required: true,
     },
+    googleId: String,
+    name: String,
     category: {
         type: String,
         required: true

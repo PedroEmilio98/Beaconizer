@@ -90,7 +90,7 @@ const createAdmin = async () => {
     } else {
         console.log('Já existe um usuario')
     }
-    const isBeacon = await Beacon.find({});
+    const isBeacon = await Beacon.count();
     if (!isBeacon) {
         const beaconPublic = new Beacon({
             title: 'Recesso de natal',
